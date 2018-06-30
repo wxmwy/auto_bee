@@ -271,10 +271,10 @@ class GameState:
             # SCREEN.blit(IMAGES['bgs'], (640, 0)) # !!! -> bg-s path = 'assets/bgs.png'
             color = 0, 0, 0
             img80 = pygame.transform.scale(pygame.surfarray.make_surface(image_data), (80, 80))
-            SCREEN.blit(img80, (900, 380))
-            SCREEN.blit(img80, (900, 460))
-            SCREEN.blit(img80, (900, 520))
-            SCREEN.blit(img80, (900, 580))
+            SCREEN.blit(img80, (900, 320))
+            SCREEN.blit(img80, (900, 440))
+            SCREEN.blit(img80, (900, 560))
+            SCREEN.blit(img80, (900, 680))
 
             font = pygame.font.SysFont('arial', 3)
             numj = font.render('-0.2 -0.11 -0.3', True, color)
@@ -336,9 +336,11 @@ class GameState:
                 
             #pygame.draw.aaline(SCREEN, color, (SCREENWIDTH/3, 0), (SCREENWIDTH/3, SCREENHEIGHT), 3)
         if terminal:
-            # TODO change pic.
-            SCREEN.blit(IMAGES['end'], ((SCREENWIDTH-IMAGES['end'].get_width())/2, (SCREENHEIGHT-IMAGES['end'].get_height())/2))
+            showRst(self.score)
+            #SCREEN.blit(IMAGES['end'], ((SCREENWIDTH-IMAGES['end'].get_width())/2, (SCREENHEIGHT-IMAGES['end'].get_height())/2))
             # TODO save file
+            f = open('score' + str(level) + '.txt', 'a')
+            f.write(str(self.score) + '\n')
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
@@ -350,6 +352,32 @@ class GameState:
         if  not (int(20*SCREENHEIGHT/512 + BASEY*0.2 - PIPE_HEIGHT) < self.upperPipes[w]['y'] < int(90*SCREENHEIGHT/512 + BASEY*0.2 - PIPE_HEIGHT)):
             self.upperPipes[w]['y'] -= dy
             self.lowerPipes[w]['y'] -= dy
+
+
+def showRst(score):
+    """displays score in center of screen"""
+    scoreDigits = [int(x) for x in list(str(score))]
+    totalWidth = 0  # total width of all numbers to be printed
+
+    for digit in scoreDigits:
+        totalWidth += IMAGES['numbers'][digit].get_width()
+
+    Xoffset = SCREENWIDTH / 2 + 30
+    Yoffset = SCREENHEIGHT / 2 - (40 + IMAGES['numbers'][digit].get_height())
+    SCREEN.blit(IMAGES['end'],
+                ((SCREENWIDTH - IMAGES['end'].get_width()) / 2, (SCREENHEIGHT - IMAGES['end'].get_height()) / 2))
+    i = 0
+    for digit in scoreDigits:
+        i = i + 1
+    if i == 1:
+        for digit in scoreDigits:
+            SCREEN.blit(IMAGES['numbers'][digit], (Xoffset + 40, Yoffset + 14))
+            Xoffset += IMAGES['numbers'][digit].get_width()
+    else:
+        for digit in scoreDigits:
+            SCREEN.blit(IMAGES['numbers'][digit], (Xoffset + 30, Yoffset + 14))
+            Xoffset += IMAGES['numbers'][digit].get_width()
+
 
 def getRandomPipe():
     """returns a randomly generated pipe"""

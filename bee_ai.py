@@ -170,7 +170,20 @@ def main(level, sess, readout, s):
     while die:
         for event in pygame.event.get():
             # TODO
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                try:
+                    tmpt = hitbtn(pos[0], pos[1])
+                except Exception:
+                    tmpt = 0
+                if tmpt == 1:
+                    terminal = True
+                    die = False
+                    show = False
+                    pygame.mixer.music.load(SOUNDS['start'])
+                    pygame.mixer.music.play()
+
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     die = False
                 if event.key == pygame.K_ESCAPE:

@@ -23,10 +23,10 @@ IMAGES, SOUNDS, HITMASKS = bee_utils.load()
 SCREENWIDTH  = 1920 #288
 SCREENHEIGHT = 1080 #512
 
-def hitbtn(x, y):
 
+def hitbtn(x, y):
     if int(SCREENWIDTH-40-IMAGES['back'].get_width()) <= x <= int(SCREENWIDTH-40) and int(SCREENHEIGHT-40-IMAGES['back'].get_height()) <= y <= int(SCREENHEIGHT-40):
-         if HITMASKS['back'][x-int(SCREENWIDTH-40-IMAGES['back'].get_width())][y-int(SCREENHEIGHT-40-IMAGES['back'].get_height())]:
+        if HITMASKS['back'][x-int(SCREENWIDTH-40-IMAGES['back'].get_width())][y-int(SCREENHEIGHT-40-IMAGES['back'].get_height())]:
             return 1
     elif int(SCREENWIDTH-40-IMAGES['back'].get_width()-40-IMAGES['change'].get_width()) <= x <= int(SCREENWIDTH-40-IMAGES['back'].get_width()) and int(SCREENHEIGHT-40-IMAGES['change'].get_height()) <= y <= int(SCREENHEIGHT-40):
         if HITMASKS['change'][x-int(SCREENWIDTH-40-IMAGES['back'].get_width()-40-IMAGES['change'].get_width())][y-int(SCREENHEIGHT-40-IMAGES['change'].get_height())]:
@@ -39,25 +39,28 @@ def hitbtn(x, y):
             return 4
     return 0
 
+
 def hitPixel(x, y, u0, l0, t0):
-    uHitmask = HITMASKS['pipe'][t0*2+0]
-    lHitmask = HITMASKS['pipe'][t0*2+1]
+    uHitmask = HITMASKS['pipe'][t0*2 + 0]
+    lHitmask = HITMASKS['pipe'][t0*2 + 1]
     try:
-        if uHitmask[x-int(u0['x'])][y-int(u0['y'])]:
+        if uHitmask[x-int(u0['x'])][y - int(u0['y'])]:
             return True
     except IndexError:
         try:
-            if lHitmask[x-int(l0['x'])][y-int(l0['y'])]:
+            if lHitmask[x-int(l0['x'])][y - int(l0['y'])]:
                 return True
         except IndexError:
             return False
     return False
 
+
 def hit(x, y, u, l, ty):
     for i in range(0, len(u)):
-        if(hitPixel(x, y, u[i], l[i], ty[i])):
+        if hitPixel(x, y, u[i], l[i], ty[i]):
             return i
     return -1
+
 
 def main(level, sess, readout, s):
     start = False
@@ -67,13 +70,13 @@ def main(level, sess, readout, s):
     drag = False
     show = False
     which = -1
-    # get the first state by doing nothing and preprocess the image to 80x80x4
+    # get the first state by doing nothing and pre process the image to 80x80x4
     game_state.__init__()
     do_nothing = np.zeros(ACTIONS)
     do_nothing[0] = 1
-    x_t, r_0, terminal, u, l,ty,score = game_state.frame_step(do_nothing, start, level,show)
+    x_t, r_0, terminal, u, l, ty, score = game_state.frame_step(do_nothing, start, level, show)
     x_t = cv2.cvtColor(cv2.resize(x_t, (80, 80)), cv2.COLOR_BGR2GRAY)
-    ret, x_t = cv2.threshold(x_t,1,255,cv2.THRESH_BINARY)
+    ret, x_t = cv2.threshold(x_t, 1, 255, cv2.THRESH_BINARY)
     s_t = np.stack((x_t, x_t, x_t, x_t), axis=2)
     die = True
 
@@ -86,16 +89,15 @@ def main(level, sess, readout, s):
                 action_index = np.argmax(readout_t)
                 a_t[action_index] = 1
             else:
-                a_t[0] = 1 # do nothing
+                a_t[0] = 1  # do nothing
 
             # scale down epsilon
             if epsilon > FINAL_EPSILON and t > OBSERVE:
                 epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / EXPLORE
-            x_t1_colored, r_t, terminal, _, _, _,score = game_state.frame_step(a_t,start, level,show)
+            x_t1_colored, r_t, terminal, _, _, _, score = game_state.frame_step(a_t, start, level, show)
             x_t1 = cv2.cvtColor(cv2.resize(x_t1_colored, (80, 80)), cv2.COLOR_BGR2GRAY)
             ret, x_t1 = cv2.threshold(x_t1, 1, 255, cv2.THRESH_BINARY)
             x_t1 = np.reshape(x_t1, (80, 80, 1))
-            #s_t1 = np.append(x_t1, s_t[:,:,1:], axis = 2)
             s_t1 = np.append(x_t1, s_t[:, :, :3], axis=2)
 
             # update the old values
@@ -114,9 +116,7 @@ def main(level, sess, readout, s):
                         tmpt = 0
                     if tmpt != 0:
                         if tmpt == 1:
-                            terminal = True
-                            die = False
-                            show = False
+                            terminal, die, show = True, False, False
                             pygame.mixer.music.load(SOUNDS['start'])
                             pygame.mixer.music.play()
                         elif tmpt == 2:
@@ -164,11 +164,12 @@ def main(level, sess, readout, s):
                         pos = pygame.mouse.get_pos()
                         game_state.changePipe(pos[1]-py, which)
                         py = pos[1]
-                        _, _, terminal, u, l, ty, score = game_state.frame_step(do_nothing, start, level,show)
+                        _, _, terminal, u, l, ty, score = game_state.frame_step(do_nothing, start, level, show)
                 elif event.type == pygame.MOUSEBUTTONUP:
                     drag = False
     while die:
         for event in pygame.event.get():
+            # TODO
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     die = False

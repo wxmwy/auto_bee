@@ -1,0 +1,93 @@
+# need a bg!!!! 
+# SCREEN.blit(IMAGES['bg-s'], (640, 0)) # !!! -> bg-s path = 'assets/bgs.png' 
+color = 0,0,0 
+img80 = cv2.resize(image_data, (80, 80))
+SCREEN.blit(img80, (900, 380))
+SCREEN.blit(img80, (900, 460))
+SCREEN.blit(img80, (900, 520))
+SCREEN.blit(img80, (900, 580))
+
+font = pygame.font.SysFont('arial', 3)
+numj = font.render('-0.2 -0.11 -0.3', True, color)
+SCREEN.blit(numj, (1090-6,390-12))
+numj = font.render('-0.2 -0.11 -0.3', True, color)
+SCREEN.blit(numj, (1090-6,390-8))
+numj = font.render('-0.2 -0.11 -0.3', True, color)
+SCREEN.blit(numj, (1090-6,390-4))
+
+numj = font.render('-0.2 -0.11 -0.3', True, color)
+SCREEN.blit(numj, (1090-6,690))
+numj = font.render('-0.2 -0.11 -0.3', True, color)
+SCREEN.blit(numj, (1090-6,690+4))
+numj = font.render('-0.2 -0.11 -0.3', True, color)
+SCREEN.blit(numj, (1090-6,690+8))
+
+img78 = cv2.resize(image_data, (78, 78))
+SCREEN.blit(img78, (640+300+300-39, 340-78-30-78))
+SCREEN.blit(img78, (640+300+300-39, 340-78))
+SCREEN.blit(img78, (640+300+300-39, 740))
+SCREEN.blit(img78, (640+300+300-39, 740+78+30))
+
+numj = font.render('0.5 -0.42', True, color)
+SCREEN.blit(numj, (1240+150-6,390-8))
+numj = font.render('0.26 0.2', True, color)
+SCREEN.blit(numj, (1240+150-6,390-4))
+
+numj = font.render('-0.63 0.23', True, color)
+SCREEN.blit(numj, (1240+150-6,690))
+numj = font.render('0.13 0.25', True, color)
+SCREEN.blit(numj, (1240+150-6,690+4))
+
+img39 = cv2.resize(image_data, (39, 39))
+SCREEN.blit(img39, (int(640+900-19.5), 340-39-30-39))
+SCREEN.blit(img39, (int(640+900-19.5), 340-39))
+SCREEN.blit(img39, (int(640+900-19.5), 740))
+SCREEN.blit(img39, (int(640+900-19.5), 740+39+30))
+
+font = pygame.font.SysFont('arial', 2)
+for t1j in range(0,32):
+numj = font.render(str(random.randint(0,1)), True, color)
+SCREEN.blit(numj, (640+1200-1 ,540-2*16+t1j*2))
+
+font = pygame.font.SysFont('arial', 8)
+if input_actions[0] == 1:
+color = 0,255,0 
+numj = font.render('0', True, color)
+SCREEN.blit(numj, (640+1250-4, 540-8))
+color = 255,0,0 
+numj = font.render('1', True, color)
+SCREEN.blit(numj, (640+1250-4, 540))
+else:
+color = 255,0,0 
+numj = font.render('0', True, color)
+SCREEN.blit(numj, (640+1250-4, 540-8))
+color = 0,255,0 
+numj = font.render('1', True, color)
+SCREEN.blit(numj, (640+1250-4, 540))
+
+上面这段代码，放到四个wrapped里面，在if terminal的上一行
+然后四个utils里面，写上IMAGES['bgs'] = pygame.image.load('路径').convert()
+
+
+
+def image_and_sharpen_array(file_name):
+    #read the image data and return it, with the sharpened image
+    image = misc.imread(file_name)
+
+    blurred = ndimage.gaussian_filter(image,3)
+    edge = ndimage.gaussian_filter(blurred,1)
+    alpha = 20
+    out = blurred + alpha*(blurred - edge)
+    return image,out
+
+#get image data
+scan,sharpen = image_and_sharpen_array('foo.jpg')
+w,h,c = scan.shape
+
+
+#setting up pygame
+pygame.init()
+screen = pygame.display.set_mode((w,h))
+
+pygame.surfarray.blit_array(screen,scan)
+pygame.display.update()

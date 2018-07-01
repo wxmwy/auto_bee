@@ -75,6 +75,7 @@ def load():
     IMAGES['stop'] = pygame.image.load('assets/spider/stop.png').convert_alpha()
     IMAGES['change'] = pygame.image.load('assets/spider/change.png').convert_alpha()
     IMAGES['back'] = pygame.image.load('assets/spider/back.png').convert_alpha()
+    IMAGES['bgs'] = pygame.image.load('assets/bee/bg.png').convert()
 
     # numbers sprites for score display
     IMAGES['numbers'] = (

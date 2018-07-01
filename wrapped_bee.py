@@ -7,6 +7,7 @@ import bee_utils
 import pygame.surfarray as surfarray
 from pygame.locals import *
 from itertools import cycle
+import cv2
 
 FPS = 40
 SCREENWIDTH  = 1920 #288
@@ -207,15 +208,9 @@ class GameState:
 
         # SCREEN.blit(IMAGES['base'], (-self.basex, BASEY))
         # print score so player overlaps the score
-        showScore(self.score)
 
-        SCREEN.blit(IMAGES['player'][level*13+self.playerIndex*4+self.playermark],
-                    (self.playerx, self.playery))
-        SCREEN.blit(IMAGES['back'],(SCREENWIDTH-40-IMAGES['back'].get_width(), SCREENHEIGHT-40-IMAGES['back'].get_height()))
-        SCREEN.blit(IMAGES['change'], (SCREENWIDTH-40-IMAGES['back'].get_width()-40-IMAGES['change'].get_width(), SCREENHEIGHT-40-IMAGES['change'].get_height()))
-        SCREEN.blit(IMAGES['stop'], (SCREENWIDTH-40-IMAGES['back'].get_width()-40-IMAGES['change'].get_width()-40-IMAGES['stop'].get_width(), SCREENHEIGHT-40-IMAGES['stop'].get_height()))
-        SCREEN.blit(IMAGES['start'], (SCREENWIDTH-40-IMAGES['back'].get_width()-40-IMAGES['change'].get_width()-40-IMAGES['stop'].get_width()-40-IMAGES['start'].get_width(), SCREENHEIGHT-40-IMAGES['start'].get_height()))
         if show:
+            SCREEN.blit(IMAGES['bgs'], (640, 0))
             color = 0,0,255
             if self.playerVelY < 0:
                 pygame.draw.aaline(SCREEN, color, (self.playerx+IMAGES['player'][level*13].get_width()/2,self.playery), (self.playerx+IMAGES['player'][level*13].get_width()/2,self.playery+self.playerVelY*2),5)
@@ -263,85 +258,160 @@ class GameState:
             pygame.draw.aaline(SCREEN, color, (self.playerx, self.playery+IMAGES['player'][level*13].get_height()), (self.playerx,self.lowerPipes[self.ppnt]['y']),5)
 
             if input_actions[1] == 1:
-                font = pygame.font.SysFont('arial',30)
-                distan = font.render('press',True, color)
+                font = pygame.font.SysFont('arial', 30)
+                distan = font.render('press', True, color)
                 SCREEN.blit(distan, (self.playerx+IMAGES['player'][level*13].get_width(), self.playery+IMAGES['player'][level*13].get_height()/2))
 
-            # TODO bg
-            # SCREEN.blit(IMAGES['bgs'], (640, 0)) # !!! -> bg-s path = 'assets/bgs.png'
             color = 0, 0, 0
-            img80 = pygame.transform.scale(pygame.surfarray.make_surface(image_data), (80, 80))
-            SCREEN.blit(img80, (900, 320))
-            SCREEN.blit(img80, (900, 440))
-            SCREEN.blit(img80, (900, 560))
-            SCREEN.blit(img80, (900, 680))
+
+            pygame.draw.aaline(SCREEN, color, (890, 270), (980 - 6, 370 - 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 470), (980 - 6, 370 - 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 670), (980 - 6, 370 - 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 870), (980 - 6, 370 - 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 270), (980 - 6, 760 + 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 470), (980 - 6, 760 + 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 670), (980 - 6, 760 + 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 870), (980 - 6, 760 + 30), 3)
+
+            img80 = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
+            img80 = pygame.transform.scale(pygame.surfarray.make_surface(img80), (160, 160))
+            SCREEN.blit(img80, (730, 190))
+            SCREEN.blit(img80, (730, 390))
+            SCREEN.blit(img80, (730, 590))
+            SCREEN.blit(img80, (730, 790))
 
             font = pygame.font.SysFont('arial', 3)
             numj = font.render('-0.2 -0.11 -0.3', True, color)
-            SCREEN.blit(numj, (1090 - 6, 390 - 12))
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 370 - 60))
             numj = font.render('-0.2 -0.11 -0.3', True, color)
-            SCREEN.blit(numj, (1090 - 6, 390 - 8))
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 370 - 40))
             numj = font.render('-0.2 -0.11 -0.3', True, color)
-            SCREEN.blit(numj, (1090 - 6, 390 - 4))
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 370 - 20))
 
             numj = font.render('-0.2 -0.11 -0.3', True, color)
-            SCREEN.blit(numj, (1090 - 6, 690))
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 760))
             numj = font.render('-0.2 -0.11 -0.3', True, color)
-            SCREEN.blit(numj, (1090 - 6, 690 + 4))
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 760 + 20))
             numj = font.render('-0.2 -0.11 -0.3', True, color)
-            SCREEN.blit(numj, (1090 - 6, 690 + 8))
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 760 + 40))
 
-            img78 = pygame.transform.scale(pygame.surfarray.make_surface(image_data), (78, 78))
-            SCREEN.blit(img78, (640 + 300 + 300 - 39, 340 - 78 - 30 - 78))
-            SCREEN.blit(img78, (640 + 300 + 300 - 39, 340 - 78))
-            SCREEN.blit(img78, (640 + 300 + 300 - 39, 740))
-            SCREEN.blit(img78, (640 + 300 + 300 - 39, 740 + 78 + 30))
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 370 - 30), (540 + 300 + 300 - 39, 420 - 78 - 30 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 370 - 30), (540 + 300 + 300 - 39, 500 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 370 - 30), (540 + 300 + 300 - 39, 700), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 370 - 30), (540 + 300 + 300 - 39, 780 + 78 + 30), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 760 + 30), (540 + 300 + 300 - 39, 420 - 78 - 30 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 760 + 30), (540 + 300 + 300 - 39, 500 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 760 + 30), (540 + 300 + 300 - 39, 700), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 760 + 30), (540 + 300 + 300 - 39, 780 + 78 + 30), 3)
+
+            img78 = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
+            img78 = pygame.transform.scale(pygame.surfarray.make_surface(img78), (120, 120))
+            SCREEN.blit(img78, (540 + 300 + 300 - 39, 360 - 78 - 30 - 78))
+            SCREEN.blit(img78, (540 + 300 + 300 - 39, 440 - 78))
+            SCREEN.blit(img78, (540 + 300 + 300 - 39, 640))
+            SCREEN.blit(img78, (540 + 300 + 300 - 39, 720 + 78 + 30))
+
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 370 - 20), (540 + 420 + 300 - 39, 420 - 78 - 30 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 370 - 20), (540 + 420 + 300 - 39, 500 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 370 - 20), (540 + 420 + 300 - 39, 700), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 370 - 20), (540 + 420 + 300 - 39, 780 + 78 + 30), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 760 + 20), (540 + 420 + 300 - 39, 420 - 78 - 30 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 760 + 20), (540 + 420 + 300 - 39, 500 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 760 + 20), (540 + 420 + 300 - 39, 700), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 760 + 20), (540 + 420 + 300 - 39, 780 + 78 + 30), 3)
 
             numj = font.render('0.5 -0.42', True, color)
-            SCREEN.blit(numj, (1240 + 150 - 6, 390 - 8))
+            numj = pygame.transform.scale(numj, (40, 20))
+            SCREEN.blit(numj, (1170 + 140 - 6, 370 - 40))
             numj = font.render('0.26 0.2', True, color)
-            SCREEN.blit(numj, (1240 + 150 - 6, 390 - 4))
+            numj = pygame.transform.scale(numj, (40, 20))
+            SCREEN.blit(numj, (1170 + 140 - 6, 370 - 20))
 
             numj = font.render('-0.63 0.23', True, color)
-            SCREEN.blit(numj, (1240 + 150 - 6, 690))
+            numj = pygame.transform.scale(numj, (40, 20))
+            SCREEN.blit(numj, (1170 + 140 - 6, 760))
             numj = font.render('0.13 0.25', True, color)
-            SCREEN.blit(numj, (1240 + 150 - 6, 690 + 4))
+            numj = pygame.transform.scale(numj, (40, 20))
+            SCREEN.blit(numj, (1170 + 140 - 6, 760 + 20))
 
-            img39 = pygame.transform.scale(pygame.surfarray.make_surface(image_data), (39, 39))
-            SCREEN.blit(img39, (int(640 + 900 - 19.5), 340 - 39 - 30 - 39))
-            SCREEN.blit(img39, (int(640 + 900 - 19.5), 340 - 39))
-            SCREEN.blit(img39, (int(640 + 900 - 19.5), 740))
-            SCREEN.blit(img39, (int(640 + 900 - 19.5), 740 + 39 + 30))
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 450 - 39 - 80 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 450 - 39 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 640 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 640 + 80 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 450 - 39 - 240 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 450 - 39 - 160 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 640 + 160 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 640 + 240 + 35), 3)
+
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 450 - 39 - 80 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 450 - 39 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 640 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 640 + 80 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 450 - 39 - 240 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 450 - 39 - 160 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 640 + 160 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 640 + 240 + 35), 3)
+
+            img39 = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
+            img39 = pygame.transform.scale(pygame.surfarray.make_surface(img39), (70, 70))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 450 - 39 - 80))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 450 - 39))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 640))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 640 + 80))
+
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 450 - 39 - 240))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 450 - 39 - 160))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 640 + 160))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 640 + 240))
 
             font = pygame.font.SysFont('arial', 2)
             for t1j in range(0, 32):
                 numj = font.render(str(random.randint(0, 1)), True, color)
-            SCREEN.blit(numj, (640 + 1200 - 1, 540 - 2 * 16 + t1j * 2))
+            SCREEN.blit(numj, (540 + 1200 - 1, 540 - 2 * 16 + t1j * 2))
 
             font = pygame.font.SysFont('arial', 8)
             if input_actions[0] == 1:
                 color = 0, 255, 0
                 numj = font.render('0', True, color)
-                SCREEN.blit(numj, (640 + 1250 - 4, 540 - 8))
+                numj = pygame.transform.scale(numj, (20, 40))
+                SCREEN.blit(numj, (340 + 1250 - 4, 500 - 8))
                 color = 255, 0, 0
                 numj = font.render('1', True, color)
-                SCREEN.blit(numj, (640 + 1250 - 4, 540))
+                numj = pygame.transform.scale(numj, (20, 40))
+                SCREEN.blit(numj, (340 + 1250 - 4, 580))
             else:
                 color = 255, 0, 0
                 numj = font.render('0', True, color)
-                SCREEN.blit(numj, (640 + 1250 - 4, 540 - 8))
+                numj = pygame.transform.scale(numj, (20, 40))
+                SCREEN.blit(numj, (340 + 1250 - 4, 500 - 8))
                 color = 0, 255, 0
                 numj = font.render('1', True, color)
-                SCREEN.blit(numj, (640 + 1250 - 4, 540))
+                numj = pygame.transform.scale(numj, (20, 40))
+                SCREEN.blit(numj, (340 + 1250 - 4, 580))
                 
             #pygame.draw.aaline(SCREEN, color, (SCREENWIDTH/3, 0), (SCREENWIDTH/3, SCREENHEIGHT), 3)
+
+        SCREEN.blit(IMAGES['player'][level * 13 + self.playerIndex * 4 + self.playermark],(self.playerx, self.playery))
+        SCREEN.blit(IMAGES['back'],(SCREENWIDTH - 40 - IMAGES['back'].get_width(), SCREENHEIGHT - 40 - IMAGES['back'].get_height()))
+        SCREEN.blit(IMAGES['change'], (
+        SCREENWIDTH - 40 - IMAGES['back'].get_width() - 40 - IMAGES['change'].get_width(),
+        SCREENHEIGHT - 40 - IMAGES['change'].get_height()))
+        SCREEN.blit(IMAGES['stop'], (
+        SCREENWIDTH - 40 - IMAGES['back'].get_width() - 40 - IMAGES['change'].get_width() - 40 - IMAGES['stop'].get_width(), SCREENHEIGHT - 40 - IMAGES['stop'].get_height()))
+        SCREEN.blit(IMAGES['start'], (
+        SCREENWIDTH - 40 - IMAGES['back'].get_width() - 40 - IMAGES['change'].get_width() - 40 - IMAGES['stop'].get_width() - 40 - IMAGES['start'].get_width(), SCREENHEIGHT - 40 - IMAGES['start'].get_height()))
+
         if terminal:
             showRst(self.score)
-            #SCREEN.blit(IMAGES['end'], ((SCREENWIDTH-IMAGES['end'].get_width())/2, (SCREENHEIGHT-IMAGES['end'].get_height())/2))
-            # TODO save file
             f = open('score' + str(level) + '.txt', 'a')
             f.write(str(self.score) + '\n')
-
+        showScore(self.score)
         pygame.display.update()
         FPSCLOCK.tick(FPS)
         return image_data, reward, terminal, self.upperPipes, self.lowerPipes, self.typePipes, self.score

@@ -76,6 +76,7 @@ def load():
     IMAGES['stop'] = pygame.image.load('assets/mountain/stop.png').convert_alpha()
     IMAGES['change'] = pygame.image.load('assets/mountain/change.png').convert_alpha()
     IMAGES['back'] = pygame.image.load('assets/mountain/back.png').convert_alpha()
+    IMAGES['bgs'] = pygame.image.load('assets/mountain/bg.png').convert()
 
     # numbers sprites for score display
     IMAGES['numbers'] = (

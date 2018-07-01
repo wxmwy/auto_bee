@@ -7,18 +7,19 @@ import mountain_utils
 import pygame.surfarray as surfarray
 from pygame.locals import *
 from itertools import cycle
+import cv2
 
 FPS = 40
-SCREENWIDTH  = 1920 #288
-SCREENHEIGHT = 1080 #512
+SCREENWIDTH = 1920  # 288
+SCREENHEIGHT = 1080  # 512
 
 pygame.init()
 FPSCLOCK = pygame.time.Clock()
-SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT), NOFRAME|FULLSCREEN)
+SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT), NOFRAME | FULLSCREEN)
 pygame.display.set_caption('Flappy Bird')
 
 IMAGES, SOUNDS, HITMASKS = mountain_utils.load()
-PIPEGAPSIZE = int(100*SCREENHEIGHT/512) # gap between upper and lower part of pipe
+PIPEGAPSIZE = int(100 * SCREENHEIGHT / 512)  # gap between upper and lower part of pipe
 BASEY = SCREENHEIGHT * 0.79
 
 PLAYER_WIDTH = IMAGES['player'][0].get_width()
@@ -33,7 +34,7 @@ PLAYER_INDEX_GEN = cycle([0, 1, 2, 1])
 class GameState:
     def __init__(self):
         self.playermark = self.score = self.playerIndex = self.loopIter = 0
-        self.playerx = int(SCREENWIDTH/3* 0.2)
+        self.playerx = int(SCREENWIDTH / 3 * 0.2)
         self.playery = int((SCREENHEIGHT - PLAYER_HEIGHT) / 2)
         self.basex = 0
         # self.baseShift = IMAGES['base'].get_width() - BACKGROUND_WIDTH
@@ -70,13 +71,13 @@ class GameState:
         ]
 
         # player velocity, max velocity, downward accleration, accleration on flap
-        self.pipeVelX = -4*SCREENWIDTH/288/3
-        self.playerVelY    =  0    # player's velocity along Y, default same as playerFlapped
-        self.playerMaxVelY =  10*SCREENHEIGHT/512   # max vel along Y, max descend speed
-        self.playerMinVelY =  -8*SCREENHEIGHT/512   # min vel along Y, max ascend speed
-        self.playerAccY    =   1*SCREENHEIGHT/512   # players downward accleration
-        self.playerFlapAcc =  -9*SCREENHEIGHT/512   # players speed on flapping
-        self.playerFlapped = False # True when player flaps
+        self.pipeVelX = -4 * SCREENWIDTH / 288 / 3
+        self.playerVelY = 0  # player's velocity along Y, default same as playerFlapped
+        self.playerMaxVelY = 10 * SCREENHEIGHT / 512  # max vel along Y, max descend speed
+        self.playerMinVelY = -8 * SCREENHEIGHT / 512  # min vel along Y, max ascend speed
+        self.playerAccY = 1 * SCREENHEIGHT / 512  # players downward accleration
+        self.playerFlapAcc = -9 * SCREENHEIGHT / 512  # players speed on flapping
+        self.playerFlapped = False  # True when player flaps
         self.ppnt = 0
 
     def frame_step(self, input_actions, start, level, show):
@@ -94,13 +95,13 @@ class GameState:
                 if self.playery > -2 * PLAYER_HEIGHT:
                     self.playerVelY = self.playerFlapAcc
                     self.playerFlapped = True
-                    #SOUNDS['wing'].play()
+                    # SOUNDS['wing'].play()
 
             # check for score
             playerMidPos = self.playerx + PLAYER_WIDTH / 2
             for pipe in self.upperPipes:
                 pipeMidPos = pipe['x'] + PIPE_WIDTH / 2
-                if pipeMidPos <= playerMidPos < pipeMidPos + 4*SCREENWIDTH/288/3:
+                if pipeMidPos <= playerMidPos < pipeMidPos + 4 * SCREENWIDTH / 288 / 3:
                     self.score += 1
                     self.ppnt = 1
                     pygame.mixer.music.load(SOUNDS['cheer'])
@@ -146,10 +147,10 @@ class GameState:
                 # self.typePipes.append(newPipe[2])
 
             # check if crash here
-            isCrash= checkCrash({'x': self.playerx, 'y': self.playery,
-                                'index': level*13+self.playerIndex*4+self.playermark},
-                                self.upperPipes, self.lowerPipes, self.typePipes)
-            if self.score < 10 :
+            isCrash = checkCrash({'x': self.playerx, 'y': self.playery,
+                                  'index': level * 13 + self.playerIndex * 4 + self.playermark},
+                                 self.upperPipes, self.lowerPipes, self.typePipes)
+            if self.score < 10:
                 self.playermark = 0
             elif 9 < self.score < 20:
                 self.playermark = 1
@@ -158,34 +159,17 @@ class GameState:
             elif 29 < self.score:
                 self.playermark = 3
             if isCrash:
-                #SOUNDS['hit'].play()
-                #SOUNDS['die'].play()
+                # SOUNDS['hit'].play()
+                # SOUNDS['die'].play()
                 pygame.mixer.music.load(SOUNDS['die'])
                 pygame.mixer.music.play()
                 terminal = True
-                #self.__init__()
+                # self.__init__()
                 reward = -1
                 self.playermark = 4
 
-        # # draw sprites
-        # SCREEN.blit(IMAGES['background'], (-self.basex,0))
-
-        # for uPipe, lPipe, typep in zip(self.upperPipes, self.lowerPipes, self.typePipes):
-        #     SCREEN.blit(IMAGES['pipe'][typep*2+0], (uPipe['x'], uPipe['y']))
-        #     SCREEN.blit(IMAGES['pipe'][typep*2+1], (lPipe['x'], lPipe['y']))
-
-        # SCREEN.blit(IMAGES['base'], (-self.basex, BASEY))
-        # # print score so player overlaps the score
-        # showScore(self.score)
-        # SCREEN.blit(IMAGES['player'][self.playerIndex],
-        #             (self.playerx, self.playery))
-
-        # #image_data = pygame.surfarray.array3d(pygame.display.get_surface())
-        # pygame.display.update()
-        # FPSCLOCK.tick(FPS)
-
-        # fake 
-        SCREEN.blit(IMAGES['background-fake'], (0,0))
+        # fake
+        SCREEN.blit(IMAGES['background-fake'], (0, 0))
 
         for uPipe, lPipe, typep in zip(self.upperPipes, self.lowerPipes, self.typePipes):
             SCREEN.blit(IMAGES['pipe-fake'][0], (uPipe['x'], uPipe['y']))
@@ -193,11 +177,11 @@ class GameState:
 
         SCREEN.blit(IMAGES['base-fake'], (-self.basex, BASEY))
         # print score so player overlaps the score
-        #showScore(self.score)
+        # showScore(self.score)
         SCREEN.blit(IMAGES['player-fake'][self.playerIndex],
                     (self.playerx, self.playery))
 
-        #print self.upperPipes[0]['y'] + PIPE_HEIGHT - int(BASEY * 0.2)
+        # print self.upperPipes[0]['y'] + PIPE_HEIGHT - int(BASEY * 0.2)
         image_d = pygame.surfarray.array3d(pygame.display.get_surface())
         indice = []
         brend = SCREENWIDTH
@@ -211,82 +195,276 @@ class GameState:
             brend /= 2.2
         for i in range(0, int(brend)):
             indice.append(i)
-        image_data = image_d.take(indice, axis = 0)
+        image_data = image_d.take(indice, axis=0)
 
         # draw true sprites
-        SCREEN.blit(IMAGES['background'], (-self.basex,0))
+        SCREEN.blit(IMAGES['background'], (-self.basex, 0))
 
         for uPipe, lPipe, typep in zip(self.upperPipes, self.lowerPipes, self.typePipes):
-            SCREEN.blit(IMAGES['pipe'][typep*2+0], (uPipe['x'], uPipe['y']))
-            SCREEN.blit(IMAGES['pipe'][typep*2+1], (lPipe['x'], lPipe['y']))
+            SCREEN.blit(IMAGES['pipe'][typep * 2 + 0], (uPipe['x'], uPipe['y']))
+            SCREEN.blit(IMAGES['pipe'][typep * 2 + 1], (lPipe['x'], lPipe['y']))
             SCREEN.blit(IMAGES['pipe'][2], (uPipe['x'], 0))
-            SCREEN.blit(IMAGES['pipe'][4], (lPipe['x'], SCREENHEIGHT-IMAGES['pipe'][4].get_height()))
+            SCREEN.blit(IMAGES['pipe'][3], (lPipe['x'], SCREENHEIGHT - IMAGES['pipe'][3].get_height()))
 
         # SCREEN.blit(IMAGES['base'], (-self.basex, BASEY))
         # print score so player overlaps the score
-        showScore(self.score)
-        SCREEN.blit(IMAGES['player'][level*13+self.playerIndex*4+self.playermark],
-                    (self.playerx, self.playery))
 
-        SCREEN.blit(IMAGES['back'],(SCREENWIDTH-40-IMAGES['back'].get_width(), SCREENHEIGHT-40-IMAGES['back'].get_height()))
-        SCREEN.blit(IMAGES['change'], (SCREENWIDTH-40-IMAGES['back'].get_width()-40-IMAGES['change'].get_width(), SCREENHEIGHT-40-IMAGES['change'].get_height()))
-        SCREEN.blit(IMAGES['stop'], (SCREENWIDTH-40-IMAGES['back'].get_width()-40-IMAGES['change'].get_width()-40-IMAGES['stop'].get_width(), SCREENHEIGHT-40-IMAGES['stop'].get_height()))
-        SCREEN.blit(IMAGES['start'], (SCREENWIDTH-40-IMAGES['back'].get_width()-40-IMAGES['change'].get_width()-40-IMAGES['stop'].get_width()-40-IMAGES['start'].get_width(), SCREENHEIGHT-40-IMAGES['start'].get_height()))
         if show:
-            color = 0,0,255
+            SCREEN.blit(IMAGES['bgs'], (640, 0))
+            color = 0, 0, 255
             if self.playerVelY < 0:
-                pygame.draw.aaline(SCREEN, color, (self.playerx+IMAGES['player'][level*13].get_width()/2,self.playery), (self.playerx+IMAGES['player'][level*13].get_width()/2,self.playery+self.playerVelY*2),5)
-                pygame.draw.aaline(SCREEN, color, (self.playerx+IMAGES['player'][level*13].get_width()/2+5,self.playery+self.playerVelY*2+5), (self.playerx+IMAGES['player'][level*13].get_width()/2,self.playery+self.playerVelY*2),3)
-                pygame.draw.aaline(SCREEN, color, (self.playerx+IMAGES['player'][level*13].get_width()/2-5,self.playery+self.playerVelY*2+5), (self.playerx+IMAGES['player'][level*13].get_width()/2,self.playery+self.playerVelY*2),3)
+                pygame.draw.aaline(SCREEN, color,
+                                   (self.playerx + IMAGES['player'][level * 13].get_width() / 2, self.playery), (
+                                   self.playerx + IMAGES['player'][level * 13].get_width() / 2,
+                                   self.playery + self.playerVelY * 2), 5)
+                pygame.draw.aaline(SCREEN, color, (self.playerx + IMAGES['player'][level * 13].get_width() / 2 + 5,
+                                                   self.playery + self.playerVelY * 2 + 5), (
+                                   self.playerx + IMAGES['player'][level * 13].get_width() / 2,
+                                   self.playery + self.playerVelY * 2), 3)
+                pygame.draw.aaline(SCREEN, color, (self.playerx + IMAGES['player'][level * 13].get_width() / 2 - 5,
+                                                   self.playery + self.playerVelY * 2 + 5), (
+                                   self.playerx + IMAGES['player'][level * 13].get_width() / 2,
+                                   self.playery + self.playerVelY * 2), 3)
             elif self.playerVelY > 0:
-                pygame.draw.aaline(SCREEN, color, (self.playerx+IMAGES['player'][level*13].get_width()/2,self.playery+IMAGES['player'][level*13].get_width()), (self.playerx+IMAGES['player'][level*13].get_width()/2,self.playery+IMAGES['player'][level*13].get_width()+self.playerVelY*2),5)
-                pygame.draw.aaline(SCREEN, color, (self.playerx+IMAGES['player'][level*13].get_width()/2+5,self.playery+IMAGES['player'][level*13].get_width()+self.playerVelY*2-5), (self.playerx+IMAGES['player'][level*13].get_width()/2,self.playery+IMAGES['player'][level*13].get_width()+self.playerVelY*2),3)
-                pygame.draw.aaline(SCREEN, color, (self.playerx+IMAGES['player'][level*13].get_width()/2-5,self.playery+IMAGES['player'][level*13].get_width()+self.playerVelY*2-5), (self.playerx+IMAGES['player'][level*13].get_width()/2,self.playery+IMAGES['player'][level*13].get_width()+self.playerVelY*2),3)
+                pygame.draw.aaline(SCREEN, color, (self.playerx + IMAGES['player'][level * 13].get_width() / 2,
+                                                   self.playery + IMAGES['player'][level * 13].get_width()), (
+                                   self.playerx + IMAGES['player'][level * 13].get_width() / 2,
+                                   self.playery + IMAGES['player'][level * 13].get_width() + self.playerVelY * 2), 5)
+                pygame.draw.aaline(SCREEN, color, (self.playerx + IMAGES['player'][level * 13].get_width() / 2 + 5,
+                                                   self.playery + IMAGES['player'][
+                                                       level * 13].get_width() + self.playerVelY * 2 - 5), (
+                                   self.playerx + IMAGES['player'][level * 13].get_width() / 2,
+                                   self.playery + IMAGES['player'][level * 13].get_width() + self.playerVelY * 2), 3)
+                pygame.draw.aaline(SCREEN, color, (self.playerx + IMAGES['player'][level * 13].get_width() / 2 - 5,
+                                                   self.playery + IMAGES['player'][
+                                                       level * 13].get_width() + self.playerVelY * 2 - 5), (
+                                   self.playerx + IMAGES['player'][level * 13].get_width() / 2,
+                                   self.playery + IMAGES['player'][level * 13].get_width() + self.playerVelY * 2), 3)
             if self.ppnt == 0:
-                color = 0,255,0
-                font = pygame.font.SysFont('arial',16)
-                distan = font.render(str(self.upperPipes[self.ppnt+1]['x']-self.playerx), True, color)
-                SCREEN.blit(distan, ((self.playerx+IMAGES['player'][level*13].get_width()+self.upperPipes[self.ppnt+1]['x'])/2,self.upperPipes[self.ppnt+1]['y']+PIPE_HEIGHT))
-                pygame.draw.aaline(SCREEN, color, (self.playerx+IMAGES['player'][level*13].get_width(), self.upperPipes[self.ppnt+1]['y']+PIPE_HEIGHT), (self.upperPipes[self.ppnt+1]['x'],self.upperPipes[self.ppnt+1]['y']+PIPE_HEIGHT),5)
-                
-                distan = font.render(str(self.lowerPipes[self.ppnt+1]['x']-self.playerx), True, color)
-                SCREEN.blit(distan, ((self.playerx+IMAGES['player'][level*13].get_width()+self.lowerPipes[self.ppnt+1]['x'])/2,self.lowerPipes[self.ppnt+1]['y']))
-                pygame.draw.aaline(SCREEN, color, (self.playerx+IMAGES['player'][level*13].get_width(), self.lowerPipes[self.ppnt+1]['y']), (self.lowerPipes[self.ppnt+1]['x'],self.lowerPipes[self.ppnt+1]['y']),5)
-                
-                distan = font.render(str(self.upperPipes[self.ppnt+1]['y']+PIPE_HEIGHT-self.playery), True, color)
-                SCREEN.blit(distan, (self.playerx+IMAGES['player'][level*13].get_width()+6,(self.upperPipes[self.ppnt+1]['y']+PIPE_HEIGHT+self.playery)/2))
-                pygame.draw.aaline(SCREEN, color, (self.playerx+IMAGES['player'][level*13].get_width(), self.playery), (self.playerx+IMAGES['player'][level*13].get_width(),self.upperPipes[self.ppnt+1]['y']+PIPE_HEIGHT),5)
-                
-                distan = font.render(str(self.lowerPipes[self.ppnt+1]['y']-self.playery-IMAGES['player'][level*13].get_height()), True, color)
-                SCREEN.blit(distan, (self.playerx+IMAGES['player'][level*13].get_width()+6,(self.lowerPipes[self.ppnt+1]['y']+self.playery+IMAGES['player'][level*13].get_height())/2))
-                pygame.draw.aaline(SCREEN, color, (self.playerx+IMAGES['player'][level*13].get_width(), self.playery+IMAGES['player'][level*13].get_height()), (self.playerx+IMAGES['player'][level*13].get_width(),self.lowerPipes[self.ppnt+1]['y']),5)
+                color = 0, 255, 0
+                font = pygame.font.SysFont('arial', 16)
+                distan = font.render(str(self.upperPipes[self.ppnt + 1]['x'] - self.playerx), True, color)
+                SCREEN.blit(distan, (
+                (self.playerx + IMAGES['player'][level * 13].get_width() + self.upperPipes[self.ppnt + 1]['x']) / 2,
+                self.upperPipes[self.ppnt + 1]['y'] + PIPE_HEIGHT))
+                pygame.draw.aaline(SCREEN, color, (self.playerx + IMAGES['player'][level * 13].get_width(),
+                                                   self.upperPipes[self.ppnt + 1]['y'] + PIPE_HEIGHT), (
+                                   self.upperPipes[self.ppnt + 1]['x'],
+                                   self.upperPipes[self.ppnt + 1]['y'] + PIPE_HEIGHT), 5)
 
-            color = 255,0,0
-            font = pygame.font.SysFont('arial',16)
-            distan = font.render(str(self.upperPipes[self.ppnt]['x']-self.playerx), True, color)
-            SCREEN.blit(distan, ((self.playerx+self.upperPipes[self.ppnt]['x'])/2,self.upperPipes[self.ppnt]['y']+PIPE_HEIGHT))
-            pygame.draw.aaline(SCREEN, color, (self.playerx, self.upperPipes[self.ppnt]['y']+PIPE_HEIGHT), (self.upperPipes[self.ppnt]['x'],self.upperPipes[self.ppnt]['y']+PIPE_HEIGHT),5)
-            
-            distan = font.render(str(self.lowerPipes[self.ppnt]['x']-self.playerx), True, color)
-            SCREEN.blit(distan, ((self.playerx+self.lowerPipes[self.ppnt]['x'])/2,self.lowerPipes[self.ppnt]['y']))
-            pygame.draw.aaline(SCREEN, color, (self.playerx, self.lowerPipes[self.ppnt]['y']), (self.lowerPipes[self.ppnt]['x'],self.lowerPipes[self.ppnt]['y']),5)
-            
-            distan = font.render(str(self.upperPipes[self.ppnt]['y']+PIPE_HEIGHT-self.playery), True, color)
-            SCREEN.blit(distan, (self.playerx+6,(self.upperPipes[self.ppnt]['y']+PIPE_HEIGHT+self.playery)/2))
-            pygame.draw.aaline(SCREEN, color, (self.playerx, self.playery), (self.playerx,self.upperPipes[self.ppnt]['y']+PIPE_HEIGHT),5)
-            
-            distan = font.render(str(self.lowerPipes[self.ppnt]['y']-self.playery-IMAGES['player'][level*13].get_height()), True, color)
-            SCREEN.blit(distan, (self.playerx+6,(self.lowerPipes[self.ppnt]['y']+self.playery+IMAGES['player'][level*13].get_height())/2))
-            pygame.draw.aaline(SCREEN, color, (self.playerx, self.playery+IMAGES['player'][level*13].get_height()), (self.playerx,self.lowerPipes[self.ppnt]['y']),5)
+                distan = font.render(str(self.lowerPipes[self.ppnt + 1]['x'] - self.playerx), True, color)
+                SCREEN.blit(distan, (
+                (self.playerx + IMAGES['player'][level * 13].get_width() + self.lowerPipes[self.ppnt + 1]['x']) / 2,
+                self.lowerPipes[self.ppnt + 1]['y']))
+                pygame.draw.aaline(SCREEN, color, (
+                self.playerx + IMAGES['player'][level * 13].get_width(), self.lowerPipes[self.ppnt + 1]['y']),
+                                   (self.lowerPipes[self.ppnt + 1]['x'], self.lowerPipes[self.ppnt + 1]['y']), 5)
+
+                distan = font.render(str(self.upperPipes[self.ppnt + 1]['y'] + PIPE_HEIGHT - self.playery), True, color)
+                SCREEN.blit(distan, (self.playerx + IMAGES['player'][level * 13].get_width() + 6,
+                                     (self.upperPipes[self.ppnt + 1]['y'] + PIPE_HEIGHT + self.playery) / 2))
+                pygame.draw.aaline(SCREEN, color,
+                                   (self.playerx + IMAGES['player'][level * 13].get_width(), self.playery), (
+                                   self.playerx + IMAGES['player'][level * 13].get_width(),
+                                   self.upperPipes[self.ppnt + 1]['y'] + PIPE_HEIGHT), 5)
+
+                distan = font.render(
+                    str(self.lowerPipes[self.ppnt + 1]['y'] - self.playery - IMAGES['player'][level * 13].get_height()),
+                    True, color)
+                SCREEN.blit(distan, (self.playerx + IMAGES['player'][level * 13].get_width() + 6, (
+                            self.lowerPipes[self.ppnt + 1]['y'] + self.playery + IMAGES['player'][
+                        level * 13].get_height()) / 2))
+                pygame.draw.aaline(SCREEN, color, (self.playerx + IMAGES['player'][level * 13].get_width(),
+                                                   self.playery + IMAGES['player'][level * 13].get_height()), (
+                                   self.playerx + IMAGES['player'][level * 13].get_width(),
+                                   self.lowerPipes[self.ppnt + 1]['y']), 5)
+
+            color = 255, 0, 0
+            font = pygame.font.SysFont('arial', 16)
+            distan = font.render(str(self.upperPipes[self.ppnt]['x'] - self.playerx), True, color)
+            SCREEN.blit(distan, (
+            (self.playerx + self.upperPipes[self.ppnt]['x']) / 2, self.upperPipes[self.ppnt]['y'] + PIPE_HEIGHT))
+            pygame.draw.aaline(SCREEN, color, (self.playerx, self.upperPipes[self.ppnt]['y'] + PIPE_HEIGHT),
+                               (self.upperPipes[self.ppnt]['x'], self.upperPipes[self.ppnt]['y'] + PIPE_HEIGHT), 5)
+
+            distan = font.render(str(self.lowerPipes[self.ppnt]['x'] - self.playerx), True, color)
+            SCREEN.blit(distan, ((self.playerx + self.lowerPipes[self.ppnt]['x']) / 2, self.lowerPipes[self.ppnt]['y']))
+            pygame.draw.aaline(SCREEN, color, (self.playerx, self.lowerPipes[self.ppnt]['y']),
+                               (self.lowerPipes[self.ppnt]['x'], self.lowerPipes[self.ppnt]['y']), 5)
+
+            distan = font.render(str(self.upperPipes[self.ppnt]['y'] + PIPE_HEIGHT - self.playery), True, color)
+            SCREEN.blit(distan, (self.playerx + 6, (self.upperPipes[self.ppnt]['y'] + PIPE_HEIGHT + self.playery) / 2))
+            pygame.draw.aaline(SCREEN, color, (self.playerx, self.playery),
+                               (self.playerx, self.upperPipes[self.ppnt]['y'] + PIPE_HEIGHT), 5)
+
+            distan = font.render(
+                str(self.lowerPipes[self.ppnt]['y'] - self.playery - IMAGES['player'][level * 13].get_height()), True,
+                color)
+            SCREEN.blit(distan, (self.playerx + 6, (self.lowerPipes[self.ppnt]['y'] + self.playery + IMAGES['player'][
+                level * 13].get_height()) / 2))
+            pygame.draw.aaline(SCREEN, color, (self.playerx, self.playery + IMAGES['player'][level * 13].get_height()),
+                               (self.playerx, self.lowerPipes[self.ppnt]['y']), 5)
 
             if input_actions[1] == 1:
-                font = pygame.font.SysFont('arial',30)
-                distan = font.render('press',True, color)
-                SCREEN.blit(distan, (self.playerx+IMAGES['player'][level*13].get_width(), self.playery+IMAGES['player'][level*13].get_height()/2))
-                
-            #pygame.draw.aaline(SCREEN, color, (SCREENWIDTH/3, 0), (SCREENWIDTH/3, SCREENHEIGHT), 3)
+                font = pygame.font.SysFont('arial', 30)
+                distan = font.render('press', True, color)
+                SCREEN.blit(distan, (self.playerx + IMAGES['player'][level * 13].get_width(),
+                                     self.playery + IMAGES['player'][level * 13].get_height() / 2))
+
+            color = 0, 0, 0
+
+            pygame.draw.aaline(SCREEN, color, (890, 270), (980 - 6, 370 - 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 470), (980 - 6, 370 - 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 670), (980 - 6, 370 - 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 870), (980 - 6, 370 - 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 270), (980 - 6, 760 + 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 470), (980 - 6, 760 + 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 670), (980 - 6, 760 + 30), 3)
+            pygame.draw.aaline(SCREEN, color, (890, 870), (980 - 6, 760 + 30), 3)
+
+            img80 = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
+            img80 = pygame.transform.scale(pygame.surfarray.make_surface(img80), (160, 160))
+            SCREEN.blit(img80, (730, 190))
+            SCREEN.blit(img80, (730, 390))
+            SCREEN.blit(img80, (730, 590))
+            SCREEN.blit(img80, (730, 790))
+
+            font = pygame.font.SysFont('arial', 3)
+            numj = font.render('-0.2 -0.11 -0.3', True, color)
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 370 - 60))
+            numj = font.render('-0.2 -0.11 -0.3', True, color)
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 370 - 40))
+            numj = font.render('-0.2 -0.11 -0.3', True, color)
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 370 - 20))
+
+            numj = font.render('-0.2 -0.11 -0.3', True, color)
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 760))
+            numj = font.render('-0.2 -0.11 -0.3', True, color)
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 760 + 20))
+            numj = font.render('-0.2 -0.11 -0.3', True, color)
+            numj = pygame.transform.scale(numj, (60, 20))
+            SCREEN.blit(numj, (980 - 6, 760 + 40))
+
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 370 - 30), (540 + 300 + 300 - 39, 420 - 78 - 30 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 370 - 30), (540 + 300 + 300 - 39, 500 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 370 - 30), (540 + 300 + 300 - 39, 700), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 370 - 30), (540 + 300 + 300 - 39, 780 + 78 + 30), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 760 + 30), (540 + 300 + 300 - 39, 420 - 78 - 30 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 760 + 30), (540 + 300 + 300 - 39, 500 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 760 + 30), (540 + 300 + 300 - 39, 700), 3)
+            pygame.draw.aaline(SCREEN, color, (980 + 60 - 6, 760 + 30), (540 + 300 + 300 - 39, 780 + 78 + 30), 3)
+
+            img78 = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
+            img78 = pygame.transform.scale(pygame.surfarray.make_surface(img78), (120, 120))
+            SCREEN.blit(img78, (540 + 300 + 300 - 39, 360 - 78 - 30 - 78))
+            SCREEN.blit(img78, (540 + 300 + 300 - 39, 440 - 78))
+            SCREEN.blit(img78, (540 + 300 + 300 - 39, 640))
+            SCREEN.blit(img78, (540 + 300 + 300 - 39, 720 + 78 + 30))
+
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 370 - 20), (540 + 420 + 300 - 39, 420 - 78 - 30 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 370 - 20), (540 + 420 + 300 - 39, 500 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 370 - 20), (540 + 420 + 300 - 39, 700), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 370 - 20), (540 + 420 + 300 - 39, 780 + 78 + 30), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 760 + 20), (540 + 420 + 300 - 39, 420 - 78 - 30 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 760 + 20), (540 + 420 + 300 - 39, 500 - 78), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 760 + 20), (540 + 420 + 300 - 39, 700), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 140 - 6, 760 + 20), (540 + 420 + 300 - 39, 780 + 78 + 30), 3)
+
+            numj = font.render('0.5 -0.42', True, color)
+            numj = pygame.transform.scale(numj, (40, 20))
+            SCREEN.blit(numj, (1170 + 140 - 6, 370 - 40))
+            numj = font.render('0.26 0.2', True, color)
+            numj = pygame.transform.scale(numj, (40, 20))
+            SCREEN.blit(numj, (1170 + 140 - 6, 370 - 20))
+
+            numj = font.render('-0.63 0.23', True, color)
+            numj = pygame.transform.scale(numj, (40, 20))
+            SCREEN.blit(numj, (1170 + 140 - 6, 760))
+            numj = font.render('0.13 0.25', True, color)
+            numj = pygame.transform.scale(numj, (40, 20))
+            SCREEN.blit(numj, (1170 + 140 - 6, 760 + 20))
+
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 450 - 39 - 80 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 450 - 39 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 640 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 640 + 80 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 450 - 39 - 240 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 450 - 39 - 160 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 640 + 160 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 640 + 240 + 35), 3)
+
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 450 - 39 - 80 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 450 - 39 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 640 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 760 + 20), (540 + 900 - 19.5, 640 + 80 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 450 - 39 - 240 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 450 - 39 - 160 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 640 + 160 + 35), 3)
+            pygame.draw.aaline(SCREEN, color, (1170 + 180 - 6, 370 - 20), (540 + 900 - 19.5, 640 + 240 + 35), 3)
+
+            img39 = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
+            img39 = pygame.transform.scale(pygame.surfarray.make_surface(img39), (70, 70))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 450 - 39 - 80))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 450 - 39))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 640))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 640 + 80))
+
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 450 - 39 - 240))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 450 - 39 - 160))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 640 + 160))
+            SCREEN.blit(img39, (int(540 + 900 - 19.5), 640 + 240))
+
+            font = pygame.font.SysFont('arial', 2)
+            for t1j in range(0, 32):
+                numj = font.render(str(random.randint(0, 1)), True, color)
+            SCREEN.blit(numj, (540 + 1200 - 1, 540 - 2 * 16 + t1j * 2))
+
+            font = pygame.font.SysFont('arial', 8)
+            if input_actions[0] == 1:
+                color = 0, 255, 0
+                numj = font.render('0', True, color)
+                numj = pygame.transform.scale(numj, (20, 40))
+                SCREEN.blit(numj, (340 + 1250 - 4, 500 - 8))
+                color = 255, 0, 0
+                numj = font.render('1', True, color)
+                numj = pygame.transform.scale(numj, (20, 40))
+                SCREEN.blit(numj, (340 + 1250 - 4, 580))
+            else:
+                color = 255, 0, 0
+                numj = font.render('0', True, color)
+                numj = pygame.transform.scale(numj, (20, 40))
+                SCREEN.blit(numj, (340 + 1250 - 4, 500 - 8))
+                color = 0, 255, 0
+                numj = font.render('1', True, color)
+                numj = pygame.transform.scale(numj, (20, 40))
+                SCREEN.blit(numj, (340 + 1250 - 4, 580))
+
+            # pygame.draw.aaline(SCREEN, color, (SCREENWIDTH/3, 0), (SCREENWIDTH/3, SCREENHEIGHT), 3)
+
+        SCREEN.blit(IMAGES['player'][level * 13 + self.playerIndex * 4 + self.playermark], (self.playerx, self.playery))
+        SCREEN.blit(IMAGES['back'],
+                    (SCREENWIDTH - 40 - IMAGES['back'].get_width(), SCREENHEIGHT - 40 - IMAGES['back'].get_height()))
+        SCREEN.blit(IMAGES['change'], (
+            SCREENWIDTH - 40 - IMAGES['back'].get_width() - 40 - IMAGES['change'].get_width(),
+            SCREENHEIGHT - 40 - IMAGES['change'].get_height()))
+        SCREEN.blit(IMAGES['stop'], (
+            SCREENWIDTH - 40 - IMAGES['back'].get_width() - 40 - IMAGES['change'].get_width() - 40 - IMAGES[
+                'stop'].get_width(), SCREENHEIGHT - 40 - IMAGES['stop'].get_height()))
+        SCREEN.blit(IMAGES['start'], (
+            SCREENWIDTH - 40 - IMAGES['back'].get_width() - 40 - IMAGES['change'].get_width() - 40 - IMAGES[
+                'stop'].get_width() - 40 - IMAGES['start'].get_width(),
+            SCREENHEIGHT - 40 - IMAGES['start'].get_height()))
+
         if terminal:
-             SCREEN.blit(IMAGES['end'], ((SCREENWIDTH-IMAGES['end'].get_width())/2, (SCREENHEIGHT-IMAGES['end'].get_height())/2))
+            showRst(self.score)
+            f = open('score' + str(level) + '.txt', 'a')
+            f.write(str(self.score) + '\n')
+        showScore(self.score)
         pygame.display.update()
         FPSCLOCK.tick(FPS)
         return image_data, reward, terminal, self.upperPipes, self.lowerPipes, self.typePipes, self.score
@@ -294,21 +472,47 @@ class GameState:
     def changePipe(self, dy, w):
         self.upperPipes[w]['y'] += dy
         self.lowerPipes[w]['y'] += dy
-        if  not (int(20*SCREENHEIGHT/512 + BASEY*0.2 - PIPE_HEIGHT) < self.upperPipes[w]['y'] < int(90*SCREENHEIGHT/512 + BASEY*0.2 - PIPE_HEIGHT)):
+        if not (int(20 * SCREENHEIGHT / 512 + BASEY * 0.2 - PIPE_HEIGHT) < self.upperPipes[w]['y'] < int(
+                90 * SCREENHEIGHT / 512 + BASEY * 0.2 - PIPE_HEIGHT)):
             self.upperPipes[w]['y'] -= dy
             self.lowerPipes[w]['y'] -= dy
+
+
+def showRst(score):
+    """displays score in center of screen"""
+    scoreDigits = [int(x) for x in list(str(score))]
+    totalWidth = 0  # total width of all numbers to be printed
+
+    for digit in scoreDigits:
+        totalWidth += IMAGES['numbers'][digit].get_width()
+
+    Xoffset = SCREENWIDTH / 2 + 30
+    Yoffset = SCREENHEIGHT / 2 - (40 + IMAGES['numbers'][digit].get_height())
+    SCREEN.blit(IMAGES['end'],
+                ((SCREENWIDTH - IMAGES['end'].get_width()) / 2, (SCREENHEIGHT - IMAGES['end'].get_height()) / 2))
+    i = 0
+    for digit in scoreDigits:
+        i = i + 1
+    if i == 1:
+        for digit in scoreDigits:
+            SCREEN.blit(IMAGES['numbers'][digit], (Xoffset + 40, Yoffset + 14))
+            Xoffset += IMAGES['numbers'][digit].get_width()
+    else:
+        for digit in scoreDigits:
+            SCREEN.blit(IMAGES['numbers'][digit], (Xoffset + 30, Yoffset + 14))
+            Xoffset += IMAGES['numbers'][digit].get_width()
+
 
 def getRandomPipe():
     """returns a randomly generated pipe"""
     # y of gap between upper and lower pipe
     gapYs = [20, 30, 40, 50, 60, 70, 80, 90]
 
-    index = random.randint(0, len(gapYs)-1)
-    gapY = int(gapYs[index]*SCREENHEIGHT/512)
+    index = random.randint(0, len(gapYs) - 1)
+    gapY = int(gapYs[index] * SCREENHEIGHT / 512)
 
     gapY += int(BASEY * 0.2)
-    pipeX = SCREENWIDTH + 10*SCREENWIDTH/288
-
+    pipeX = SCREENWIDTH + 10 * SCREENWIDTH / 288
 
     return [
         {'x': pipeX, 'y': gapY - PIPE_HEIGHT},  # upper pipe
@@ -320,19 +524,19 @@ def getRandomPipe():
 def showScore(score):
     """displays score in center of screen"""
     scoreDigits = [int(x) for x in list(str(score))]
-    totalWidth = 0 # total width of all numbers to be printed
+    totalWidth = 0  # total width of all numbers to be printed
 
     for digit in scoreDigits:
         totalWidth += IMAGES['numbers'][digit].get_width()
-    
+
     scorewidth = IMAGES['score'].get_width()
     scoreheight = IMAGES['score'].get_height()
-    
-    Xoffset = SCREENWIDTH -40-scorewidth
-    Yoffset = 40 + (IMAGES['score'].get_height() - IMAGES['numbers'][digit].get_height())/2
+
+    Xoffset = SCREENWIDTH - 40 - scorewidth
+    Yoffset = 40 + (IMAGES['score'].get_height() - IMAGES['numbers'][digit].get_height()) / 2
     SCREEN.blit(IMAGES['score'], (Xoffset, 40))
     for digit in scoreDigits:
-        SCREEN.blit(IMAGES['numbers'][digit], (Xoffset+ 20, Yoffset))
+        SCREEN.blit(IMAGES['numbers'][digit], (Xoffset + 20, Yoffset))
         Xoffset += IMAGES['numbers'][digit].get_width()
 
 
@@ -348,7 +552,7 @@ def checkCrash(player, upperPipes, lowerPipes, typePipes):
     else:
 
         playerRect = pygame.Rect(player['x'], player['y'],
-                      player['w'], player['h'])
+                                 player['w'], player['h'])
 
         for uPipe, lPipe, typep in zip(upperPipes, lowerPipes, typePipes):
             # upper and lower pipe rects
@@ -356,8 +560,8 @@ def checkCrash(player, upperPipes, lowerPipes, typePipes):
             lPipeRect = pygame.Rect(lPipe['x'], lPipe['y'], PIPE_WIDTH, PIPE_HEIGHT)
             # player and upper/lower pipe hitmasks
             pHitMask = HITMASKS['player'][pi]
-            uHitmask = HITMASKS['pipe'][typep*2+0]
-            lHitmask = HITMASKS['pipe'][typep*2+1]
+            uHitmask = HITMASKS['pipe'][typep * 2 + 0]
+            lHitmask = HITMASKS['pipe'][typep * 2 + 1]
 
             # if bird collided with upipe or lpipe
             uCollide = pixelCollision(playerRect, uPipeRect, pHitMask, uHitmask)
@@ -366,6 +570,7 @@ def checkCrash(player, upperPipes, lowerPipes, typePipes):
                 return True
 
     return False
+
 
 def pixelCollision(rect1, rect2, hitmask1, hitmask2):
     """Checks if two objects collide and not just their rects"""
@@ -380,7 +585,7 @@ def pixelCollision(rect1, rect2, hitmask1, hitmask2):
     for x in range(rect.width):
         for y in range(rect.height):
             try:
-                if hitmask1[x1+x][y1+y] and hitmask2[x2+x][y2+y]:
+                if hitmask1[x1 + x][y1 + y] and hitmask2[x2 + x][y2 + y]:
                     return True
             except BaseException:
                 return True
